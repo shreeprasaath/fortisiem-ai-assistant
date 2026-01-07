@@ -167,8 +167,88 @@ button:active {
 #output {
   min-height: 400px;
   background: rgba(2, 6, 23, 0.8);
-  white-space: pre-wrap;
   border: 1px solid rgba(139, 92, 246, 0.3);
+  overflow-y: auto;
+}
+
+.output-rendered {
+  padding: 24px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.output-rendered h1,
+.output-rendered h2,
+.output-rendered h3 {
+  color: var(--accent-primary);
+  margin-top: 24px;
+  margin-bottom: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.output-rendered p {
+  margin-bottom: 16px;
+}
+
+.output-rendered ul,
+.output-rendered ol {
+  margin-bottom: 20px;
+  padding-left: 24px;
+}
+
+.output-rendered li {
+  margin-bottom: 8px;
+}
+
+.output-rendered code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9em;
+  color: var(--accent-secondary);
+}
+
+.output-rendered pre {
+  background: #020617;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.output-rendered pre code {
+  background: transparent;
+  padding: 0;
+  color: #e2e8f0;
+}
+
+.output-rendered blockquote {
+  border-left: 4px solid var(--accent-primary);
+  background: rgba(14, 165, 233, 0.05);
+  margin: 0 0 20px 0;
+  padding: 12px 20px;
+  border-radius: 0 8px 8px 0;
+}
+
+.output-rendered strong {
+  color: var(--accent-primary);
+}
+
+/* Highlight boxes for TP/FP */
+.output-rendered h2:first-of-type {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.output-rendered h2:first-of-type::before {
+  content: "📍";
+  font-size: 0.8em;
 }
 
 .footer {

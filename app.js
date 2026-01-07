@@ -62,7 +62,7 @@ RECENT LOG EVENTS (${logCount} events):
 ${logs}
 `;
 
-  output.value = "Initializing AI analysis engine... correlation in progress...";
+  output.innerHTML = '<p style="color: var(--accent-primary); animation: pulse 2s infinite;">Initializing AI analysis engine... correlation in progress...</p>';
 
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`, {
@@ -88,15 +88,24 @@ ${logs}
     const data = await response.json();
 
     if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-      output.value = data.candidates[0].content.parts[0].text;
+      const markdown = data.candidates[0].content.parts[0].text;
+      output.innerHTML = marked.parse(markdown);
     } else if (data.error) {
-      output.value = `API Error: ${data.error.message}\n\nCheck if your API key is valid and has Gemini API access enabled.`;
+      output.innerHTML = `<div style="color: var(--danger); padding: 20px;">
+        <h3>API Error</h3>
+        <p>${data.error.message}</p>
+        <p>Check if your API key is valid and has Gemini API access enabled.</p>
+      </div>`;
     } else {
-      output.value = "Unexpected response from Gemini API. Please check console for details.";
+      output.innerHTML = '<p style="color: var(--danger);">Unexpected response from Gemini API. Please check console for details.</p>';
       console.error(data);
     }
   } catch (error) {
-    output.value = `Connection Error: ${error.message}\n\nPlease check your internet connection or API status.`;
+    output.innerHTML = `<div style="color: var(--danger); padding: 20px;">
+      <h3>Connection Error</h3>
+      <p>${error.message}</p>
+      <p>Please check your internet connection or API status.</p>
+    </div>`;
     console.error(error);
   }
 }

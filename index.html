@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI SOC Incident Analyser</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -20,22 +23,20 @@
 
     <div class="api-key-section">
       <input type="password" id="apiKey" placeholder="Enter Gemini API Key (Stored locally)" />
-      <button onclick="saveApiKey()" style="padding: 8px 16px; font-size: 12px; background: var(--accent-secondary);">Save Key</button>
+      <button onclick="saveApiKey()"
+        style="padding: 8px 16px; font-size: 12px; background: var(--accent-secondary);">Save Key</button>
     </div>
 
     <div class="grid">
       <div class="section">
         <label>FortiSIEM Incident Detail</label>
-        <textarea
-          id="incident"
+        <textarea id="incident"
           placeholder="Paste Incident Summary, Rule Description, and Target entities..."></textarea>
       </div>
 
       <div class="section">
         <label>Recent Raw Logs (1-10 events)</label>
-        <textarea
-          id="logs"
-          placeholder="Paste the last 10 log events related to this incident..."></textarea>
+        <textarea id="logs" placeholder="Paste the last 10 log events related to this incident..."></textarea>
       </div>
     </div>
 
@@ -45,11 +46,9 @@
 
     <div class="output-container">
       <label>AI Analysis Report</label>
-      <textarea
-        id="output"
-        class="output"
-        readonly
-        placeholder="Waiting for incident analysis..."></textarea>
+      <div id="output" class="output-rendered">
+        <p style="color: var(--text-secondary); opacity: 0.5;">Waiting for incident analysis...</p>
+      </div>
     </div>
 
     <div class="footer">
@@ -57,6 +56,8 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
