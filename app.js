@@ -1,91 +1,102 @@
-const HF_API_URL =
-  "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta";
+// Load API key from local storage on startup
+document.addEventListener("DOMContentLoaded", () => {
+  const savedKey = localStorage.getItem("GEMINI_API_KEY");
+  if (savedKey) {
+    document.getElementById("apiKey").value = savedKey;
+  }
+});
+
+function saveApiKey() {
+  const key = document.getElementById("apiKey").value.trim();
+  if (key) {
+    localStorage.setItem("GEMINI_API_KEY", key);
+    alert("API Key saved locally.");
+  } else {
+    alert("Please enter a valid API key.");
+  }
+}
 
 async function analyzeIncident() {
+  const apiKey = document.getElementById("apiKey").value.trim();
   const incident = document.getElementById("incident").value.trim();
   const logs = document.getElementById("logs").value.trim();
   const output = document.getElementById("output");
 
-  if (!incident || !logs) {
-    output.value = "Both Incident Summary and Raw Logs are required.";
+  if (!apiKey) {
+    output.value = "Error: Gemini API Key is missing. Please enter it above.";
     return;
   }
 
-  // Count approximate number of raw logs (by line)
+  if (!incident || !logs) {
+    output.value = "Error: Both Incident Detail and Raw Logs are required.";
+    return;
+  }
+
   const logCount = logs.split("\n").filter(l => l.trim() !== "").length;
 
-  const prompt = `
-You are acting as a Tier-1 SOC analyst assistant specializing in FortiSIEM (FSM).
+  const systemPrompt = `You are an expert SOC Analyst and Cyber Security Threat Hunter specializing in FortiSIEM.
+Your goal is to analyze FortiSIEM incidents and provide a detailed, accurate assessment.
 
-Input Structure:
-- A FortiSIEM Incident Summary (incident metadata, rule details, entities)
-- A limited number of raw log events (between 1 and 10)
+INPUT DATA:
+- FortiSIEM Incident Detail (Rule, Target, Description)
+- Last 10 Raw Logs related to the incident
 
-Your Responsibilities:
-- Extract relevant fields from the incident summary (rule name, severity, user, host, timestamps)
-- Interpret why the FortiSIEM rule triggered using the rule description
-- Correlate incident metadata with the provided raw logs
-- Identify patterns such as repeated failures, lockouts, or abnormal behavior
-- Assess risk using ONLY the provided data
-- Adjust confidence level based on the number of raw logs provided
-- Provide Tier-1 friendly coaching and validation guidance
+OUTPUT REQUIREMENTS:
+1. **True Positive / False Positive Determination**: Clearly state if this is a TP or FP and quantify your confidence (0-100%).
+2. **Root Cause Analysis**: Explain EXACTLY what happened based on the logs.
+3. **MITRE ATT&CK TTPs**: Identify probable attack TTPs (at least 90% similarity/relevance). Include IDs (e.g., T1078).
+4. **Next Steps & Advice**: Precise actions for containment and remediation.
+5. **Similar Attack Patterns**: Briefly describe a historical or known attack pattern this resembles.
 
-Strict Rules:
-- Analyze ONLY the pasted content
-- Do NOT assume missing data
-- Do NOT hallucinate environment or organization context
-- If information is missing or log volume is low, explicitly state limitations
-- Treat "Resolution set by Machine Learning" as informational only
-- Use FortiSIEM-relevant terminology
-- Be concise, structured, and operational
+STRICT RULES:
+- Be concise but technically deep.
+- Use markdown formatting for readability.
+- If the logs are insufficient, explain what is missing.
+- Do NOT hallucinate data not present in the inputs.`;
 
-MANDATORY OUTPUT FORMAT (do not change headings):
-
-1. Incident Summary
-2. Why This Alert Triggered
-3. Key Indicators Observed
-4. Raw Log Guidance
-5. Validation Steps (Tier-1 Friendly)
-6. Potential Cause
-7. Threat Assessment
-8. False Positive Check
-9. Escalation Guidance
-
-ADDITIONAL REQUIREMENTS:
-- Explicitly state an overall analysis confidence: Low / Medium / High
-- If fewer than 5 raw logs are provided, clearly mention reduced confidence
-- Include practical Tier-1 coaching hints (what to double-check manually)
-
-Incident Summary Provided:
+  const userPrompt = `
+FORTISIEM INCIDENT DETAIL:
 ${incident}
 
-Raw Log Events Provided (${logCount} events):
+RECENT LOG EVENTS (${logCount} events):
 ${logs}
 `;
 
-  output.value = "Analyzing incident… please wait.";
+  output.value = "Initializing AI analysis engine... correlation in progress...";
 
   try {
-    const response = await fetch(HF_API_URL, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        inputs: prompt,
-        options: { wait_for_model: true }
+        contents: [
+          {
+            parts: [
+              { text: systemPrompt + userPrompt }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        }
       })
     });
 
     const data = await response.json();
 
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      output.value = data[0].generated_text;
+    if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+      output.value = data.candidates[0].content.parts[0].text;
+    } else if (data.error) {
+      output.value = `API Error: ${data.error.message}\n\nCheck if your API key is valid and has Gemini API access enabled.`;
     } else {
-      output.value =
-        "Unexpected response format received.\n\n" +
-        JSON.stringify(data, null, 2);
+      output.value = "Unexpected response from Gemini API. Please check console for details.";
+      console.error(data);
     }
   } catch (error) {
-    output.value =
-      "Error contacting AI service. Please retry after some time.";
+    output.value = `Connection Error: ${error.message}\n\nPlease check your internet connection or API status.`;
+    console.error(error);
   }
 }

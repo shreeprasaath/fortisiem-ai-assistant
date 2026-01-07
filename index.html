@@ -2,49 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FortiSIEM Incident Analysis Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI SOC Incident Analyser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>FortiSIEM Incident Analysis Assistant</h1>
-    <div class="subtitle">
-      Analyst-assisted investigation tool. AI output is advisory only.
+    <header>
+      <h1>AI SOC Incident Analyser</h1>
+      <div class="subtitle">
+        Proactive FortiSIEM Threat Investigation & TTP Correlation
+      </div>
+    </header>
+
+    <div class="api-key-section">
+      <input type="password" id="apiKey" placeholder="Enter Gemini API Key (Stored locally)" />
+      <button onclick="saveApiKey()" style="padding: 8px 16px; font-size: 12px; background: var(--accent-secondary);">Save Key</button>
     </div>
 
-    <div class="section">
-      <label>FortiSIEM Incident Summary</label>
-      <textarea
-        id="incident"
-        placeholder="Paste the complete FortiSIEM Incident Summary (Incident Detail, Rule, Target, etc.)">
-      </textarea>
+    <div class="grid">
+      <div class="section">
+        <label>FortiSIEM Incident Detail</label>
+        <textarea
+          id="incident"
+          placeholder="Paste Incident Summary, Rule Description, and Target entities..."></textarea>
+      </div>
+
+      <div class="section">
+        <label>Recent Raw Logs (1-10 events)</label>
+        <textarea
+          id="logs"
+          placeholder="Paste the last 10 log events related to this incident..."></textarea>
+      </div>
     </div>
 
-    <div class="section">
-      <label>Raw Log Events (up to 10)</label>
-      <textarea
-        id="logs"
-        placeholder="Paste related raw log events (any number up to 10)">
-      </textarea>
+    <div class="actions">
+      <button onclick="analyzeIncident()">Run AI Verification</button>
     </div>
 
-    <div class="section">
-      <button onclick="analyzeIncident()">Analyze Incident</button>
-    </div>
-
-    <div class="section">
-      <label>Analysis Output</label>
+    <div class="output-container">
+      <label>AI Analysis Report</label>
       <textarea
         id="output"
         class="output"
         readonly
-        placeholder="Structured SOC analysis will appear here">
-      </textarea>
+        placeholder="Waiting for incident analysis..."></textarea>
     </div>
 
     <div class="footer">
-      This tool does not perform automated response or blocking.
-      Final incident decisions remain with the SOC analyst.
+      AI insights are advisory. SOC analysts must verify all findings before containment actions.
     </div>
   </div>
 
